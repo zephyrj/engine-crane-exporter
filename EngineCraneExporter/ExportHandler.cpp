@@ -1,17 +1,10 @@
 #include "pch.h"
+#include "constants.h"
 #include "ExportHandler.h"
 #include "utils.h"
 
 const wchar_t* ExportHandler::NAME = L"EngineCrane Exporter";
 ExportHandler* ExportHandler::s_Instance = nullptr;
-
-class make_unique_helper final : public ExportHandler
-{
-public:
-	make_unique_helper() = default;
-	virtual ~make_unique_helper() {};
-};
-
 
 ExportHandler* const ExportHandler::Instance() { return s_Instance; }
 void ExportHandler::CreateInstance() { if (!s_Instance) s_Instance = new ExportHandler(); }
@@ -42,7 +35,7 @@ AuCarExpErrorCode ExportHandler::setExportDirectory()
 		return AuCarExpErrorCode_CouldNotObtainOutputPathFatal;
 
 	m_ExportDirectory = path;
-	m_ExportDirectory += L"\\AutomationGame\\jsonExporter\\";
+	m_ExportDirectory += ENGINE_CRANE_APP_DATA_PATH;
 	std::wstring exportFileName = m_CarData->GetStringData(0)->Value;
 	sanitizeFileName(exportFileName);
 	m_ExportDirectory += exportFileName;

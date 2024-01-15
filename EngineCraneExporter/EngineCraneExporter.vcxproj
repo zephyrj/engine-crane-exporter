@@ -160,6 +160,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="constants.h" />
     <ClInclude Include="ExportHandler.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
