@@ -164,6 +164,7 @@
     <ClInclude Include="ExportHandler.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="UIParameters.h" />
     <ClInclude Include="utils.h" />
   </ItemGroup>
@@ -178,6 +179,14 @@
     </ClCompile>
     <ClCompile Include="UIParameters.cpp" />
     <ClCompile Include="utils.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="lua\EngineExport.lua">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="EngineCraneExporter.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
