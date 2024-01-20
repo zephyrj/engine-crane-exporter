@@ -3,6 +3,8 @@
 #include "ExportHandler.h"
 #include "utils.h"
 
+#include "UIParameters.h"
+
 const wchar_t* ExportHandler::NAME = L"EngineCrane Exporter";
 ExportHandler* ExportHandler::s_Instance = nullptr;
 
@@ -14,16 +16,16 @@ ExportHandler::~ExportHandler() = default;
 
 ExportHandler::ExportHandler() : 
 	m_IsExportInProcess(false),
-	m_CarData(nullptr),
+	m_ExportUiData(nullptr),
 	m_ExportDirectory(), 
 	m_LuaFloatData(),
 	m_LuaStringData(),
 	m_LuaDataFiles()
 {}
 
-AuCarExpErrorCode ExportHandler::Init(const AuCarExpCarData* carData)
+AuCarExpErrorCode ExportHandler::Init(const AuCarExpCarData* exportUiData)
 {
-	m_CarData = carData;
+	m_ExportUiData = exportUiData;
 	return setExportDirectory();
 }
 
@@ -36,7 +38,7 @@ AuCarExpErrorCode ExportHandler::setExportDirectory()
 
 	m_ExportDirectory = path;
 	m_ExportDirectory += ENGINE_CRANE_APP_DATA_PATH;
-	std::wstring exportFileName = m_CarData->GetStringData(0)->Value;
+	std::wstring exportFileName = m_ExportUiData->GetStringData(ui::getUIIndex(ui::StringElement::Filename))->Value;
 	sanitizeFileName(exportFileName);
 	m_ExportDirectory += exportFileName;
 
@@ -68,9 +70,7 @@ AuCarExpErrorCode ExportHandler::setExportDirectory()
 	{
 		std::wstring error = L"Could not create directory: ";
 		error += m_ExportDirectory;
-
 		MessageBox(nullptr, error.c_str(), TEXT("Error creating directory"), MB_OK);
-
 		return AuCarExpErrorCode_CouldNotObtainOutputPathFatal;
 	}
 }

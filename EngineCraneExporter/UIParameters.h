@@ -11,6 +11,10 @@ namespace ui {
 		Count = 0,
 	};
 
+	template <typename UiElement> unsigned int getUIIndex(UiElement e) = delete;
+	template <> unsigned int getUIIndex<StringElement>(StringElement e) { return static_cast<unsigned int>(e); };
+	template <> unsigned int getUIIndex<BoolElement>(BoolElement e) { return static_cast<unsigned int>(e); };
+
 	constexpr size_t NUM_STRINGS = static_cast<size_t>(StringElement::Count);
 	constexpr size_t NUM_BOOLS = static_cast<size_t>(BoolElement::Count);
 

@@ -239,7 +239,9 @@ function CExporter.ExportCarData(CarCalculator)
 		local totalCostPerCar = materialCost + engineeringCostsPerCar + employeeCostsPerCar + toolingCosts
 
 		return totalCostPerCar
-	end --CalculateCost
+	end 
+	
+	--CalculateCost
 
 		--Data.EngineEngineeringTime
 		--Data.EngineProductionUnits
