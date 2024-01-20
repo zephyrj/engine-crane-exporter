@@ -9,10 +9,15 @@
 
 // add headers that you want to pre-compile here
 #include "framework.h"
+#include "resource.h"
+
 #include <memory>
 #include <string>
+#include <codecvt>
 #include <unordered_map>
 #include <array>
 #include <vector>
 #include <map>
+#include <iostream>
+#include <fstream>
 #endif //PCH_H

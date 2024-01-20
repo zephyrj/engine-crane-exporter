@@ -1,9 +1,25 @@
 #include "pch.h"
-#include "constants.h"
 #include "ExportHandler.h"
+#include "constants.h"
+#include "UIParameters.h"
 #include "utils.h"
 
-#include "UIParameters.h"
+#include <toml11/toml.hpp>
+
+
+namespace {
+	struct ScopedOutputStream {
+		explicit ScopedOutputStream(const std::wstring& filepath) : stream()
+		{
+			auto attributes = GetFileAttributes(filepath.c_str());
+			auto file_exists = (attributes != INVALID_FILE_ATTRIBUTES && !(attributes & FILE_ATTRIBUTE_DIRECTORY));
+			auto open_options = file_exists ? (std::ios::out | std::ios::trunc) : std::ios::app;
+			stream.open(filepath, open_options);
+		}
+		~ScopedOutputStream() { stream.flush(); stream.close(); }
+		std::ofstream stream;
+	};
+}
 
 const wchar_t* ExportHandler::NAME = L"EngineCrane Exporter";
 ExportHandler* ExportHandler::s_Instance = nullptr;
@@ -16,7 +32,7 @@ ExportHandler::~ExportHandler() = default;
 
 ExportHandler::ExportHandler() : 
 	m_IsExportInProcess(false),
-	m_ExportUiData(nullptr),
+	m_UiData(nullptr),
 	m_ExportDirectory(), 
 	m_LuaFloatData(),
 	m_LuaStringData(),
@@ -25,7 +41,7 @@ ExportHandler::ExportHandler() :
 
 AuCarExpErrorCode ExportHandler::Init(const AuCarExpCarData* exportUiData)
 {
-	m_ExportUiData = exportUiData;
+	m_UiData = exportUiData;
 	return setExportDirectory();
 }
 
@@ -38,7 +54,7 @@ AuCarExpErrorCode ExportHandler::setExportDirectory()
 
 	m_ExportDirectory = path;
 	m_ExportDirectory += ENGINE_CRANE_APP_DATA_PATH;
-	std::wstring exportFileName = m_ExportUiData->GetStringData(ui::getUIIndex(ui::StringElement::Filename))->Value;
+	std::wstring exportFileName = m_UiData->GetStringData(ui::getUIIndex(ui::StringElement::Filename))->Value;
 	sanitizeFileName(exportFileName);
 	m_ExportDirectory += exportFileName;
 
@@ -49,13 +65,11 @@ AuCarExpErrorCode ExportHandler::setExportDirectory()
 		//create directory, one level at a time:
 		size_t slashPos = FindDirDelimiter(m_ExportDirectory, 0);
 		size_t offset = 0;
-
 		while (slashPos != std::wstring::npos)
 		{
 			CreateDirectory(m_ExportDirectory.substr(offset, slashPos - offset).c_str(), nullptr);
 			slashPos = FindDirDelimiter(m_ExportDirectory, slashPos + 1);
 		}
-
 		//last one:
 		CreateDirectory(m_ExportDirectory.c_str(), nullptr);
 		att = GetFileAttributes(m_ExportDirectory.c_str());
@@ -78,12 +92,39 @@ AuCarExpErrorCode ExportHandler::setExportDirectory()
 void ExportHandler::EndExport()
 {
 	m_IsExportInProcess = true;
-	ExportInternal();
+	writeDataFile();
 	m_IsExportInProcess = false;
 }
 
-void ExportHandler::ExportInternal()
+void ExportHandler::writeDataFile()
 {
+	std::wstring localPath = m_ExportDirectory;
+	localPath += L"\\data.txt";
+
+	std::wstring_convert<std::codecvt_utf8<wchar_t>> utf8Converter;
+	try
+	{
+		ScopedOutputStream s(m_ExportDirectory += L"\\data.toml");
+		toml::table data;
+		for (auto const& it : m_LuaStringData)
+		{
+			std::string luaKey = utf8Converter.to_bytes(it.first);
+			std::string luaVal = utf8Converter.to_bytes(it.second);
+			data[luaKey] = luaVal;
+		}
+		for (auto const& it : m_LuaFloatData)
+		{
+			std::string luaKey = utf8Converter.to_bytes(it.first);
+			auto luaVal = it.second;
+			data[luaKey] = luaVal;
+		}
+		s.stream << toml::value(data);
+	}
+	catch (const std::exception&)
+	{
+		std::wstring error_text = L"Write Error";
+		MessageBox(nullptr, localPath.c_str(), TEXT("Write Error"), MB_OK);
+	}
 }
 
 void ExportHandler::AddLuaFloatData(const AuCarExpArray<AuCarExpLuaFloatData>& Data)

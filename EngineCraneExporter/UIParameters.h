@@ -11,12 +11,12 @@ namespace ui {
 		Count = 0,
 	};
 
-	template <typename UiElement> unsigned int getUIIndex(UiElement e) = delete;
-	template <> unsigned int getUIIndex<StringElement>(StringElement e) { return static_cast<unsigned int>(e); };
-	template <> unsigned int getUIIndex<BoolElement>(BoolElement e) { return static_cast<unsigned int>(e); };
-
 	constexpr size_t NUM_STRINGS = static_cast<size_t>(StringElement::Count);
 	constexpr size_t NUM_BOOLS = static_cast<size_t>(BoolElement::Count);
+
+	template <typename UiElement> unsigned int getUIIndex(UiElement e) = delete;
+	template <> inline unsigned int getUIIndex<StringElement>(StringElement e) { return static_cast<unsigned int>(e); };
+	template <> inline unsigned int getUIIndex<BoolElement>(BoolElement e) { return static_cast<unsigned int>(e); };
 
 	AuCarExpErrorCode SetupStringData(AuCarExpArray<AuCarExpUIStringData>& stringData);
 	AuCarExpErrorCode SetupBoolData(AuCarExpArray<AuCarExpUIBoolData>& boolData);
@@ -39,7 +39,7 @@ namespace ui {
 		BoolElementType(const wchar_t* label, const wchar_t* tooltip, bool default_value);
 		void update(AUDataType& data) const;
 		const wchar_t* label = nullptr;
-		const wchar_t* tooltip ;
+		const wchar_t* tooltip = nullptr;
 		bool default_value = false;
 	};
 
