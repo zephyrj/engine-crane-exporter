@@ -2,10 +2,15 @@
 #include "UIParameters.h"
 
 namespace ui {
-	// TODO: Try FamilyName/VariantName
 	static const std::array<StringElementType, NUM_STRINGS> STRING_ELEMENTS = {
-		StringElementType(L"Filename", L"", L"[PlayerName][PlatformName][TrimName]"),
-		StringElementType(L"Exporter Script Path", L"", L""),
+		StringElementType(
+			L"Filename", 
+			L"The engine family and variant names will be used by default. If you'd like a different filename you can put it in here", 
+			L""),
+		StringElementType(
+			L"Exporter Script Path", 
+			L"The exporter script will be found automatically - if you'd like to use a custom script you can enter the path here",
+			L""),
 	};
 
 	static const std::array<BoolElementType, NUM_BOOLS> BOOL_ELEMENTS = {

@@ -107,16 +107,7 @@ AuCarExpErrorCode AuCarExportDLL::GetLuaFileCount(unsigned int* fileCount)
 
 AuCarExpErrorCode AuCarExportDLL::GetLuaFileLength(unsigned int* retLength, unsigned int FileNum)
 {
-	*retLength = 0;
-	HRSRC   hRes;              // handle/ptr to res. info.
-	HMODULE module = GetModuleHandle(PROJECT_FILENAME);
-	hRes = FindResource(module, MAKEINTRESOURCE(IDR_EXPORTER_LUA), TEXT("BINARY"));
-	if (!hRes)
-	{
-		return AuCarExpErrorCode_UnknownError;
-	}
-	unsigned int size = SizeofResource(module, hRes);
-	*retLength = size + 1;//size in chars (what we need) is the byte size. We add one for a null terminator
+	*retLength = ExportHandler::Instance()->GetExporterScriptLength();
 	return AuCarExpErrorCode_Success;
 }
 
@@ -127,28 +118,15 @@ AuCarExpErrorCode AuCarExportDLL::GetLuaFile(AuCarExpArray<wchar_t>& stringBuffe
 		return AuCarExpErrorCode_UnknownError;
 	}
 
-	HGLOBAL hResourceLoaded;  // handle to loaded resource
-	HRSRC   hRes;              // handle/ptr to res. info.
-	HMODULE module = GetModuleHandle(PROJECT_FILENAME);
-	hRes = FindResource(module, MAKEINTRESOURCE(IDR_EXPORTER_LUA), TEXT("BINARY"));
-	if (!hRes)
+	if ((ExportHandler::Instance()->GetExporterScriptLength()) <= stringBuffer.GetCount())
 	{
-		return AuCarExpErrorCode_UnknownError;
-	}
-	unsigned int size = SizeofResource(module, hRes);
-	hResourceLoaded = LoadResource(module, hRes);
-	char* data = (char*)LockResource(hResourceLoaded);
-	if ((size + 1) <= stringBuffer.GetCount())
-	{
-		for (unsigned int i = 0; i < size; i++)
+		unsigned int idx = 0;
+		for (const auto& c : ExportHandler::Instance()->GetExporterScript())
 		{
-			stringBuffer[i] = data[i];
+			stringBuffer[idx] = c;
+			++idx;
 		}
-
-		stringBuffer[size] = '\0';
 	}
-	UnlockResource(hResourceLoaded);
-
 	return AuCarExpErrorCode_Success;
 }
 

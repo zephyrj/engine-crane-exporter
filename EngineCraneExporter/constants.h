@@ -2,4 +2,4 @@
 
 #include "pch.h"
 
-static constexpr const wchar_t* ENGINE_CRANE_APP_DATA_PATH = L"\\EngineCrane\\exporter";
+static constexpr const wchar_t* EngineCraneAppDataExportPath = L"\\EngineCrane\\automation\\exports\\";
