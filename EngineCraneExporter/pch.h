@@ -13,6 +13,7 @@
 
 #include <memory>
 #include <string>
+#include <sstream>
 #include <codecvt>
 #include <unordered_map>
 #include <array>

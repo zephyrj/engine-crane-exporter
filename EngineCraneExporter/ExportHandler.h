@@ -37,6 +37,9 @@ protected:
 	AuCarExpErrorCode setupExportDirectory();
 	AuCarExpErrorCode setupExporterScript();
 
+	void writeClassic(std::wstring filePath);
+	void writeToml(std::wstring filePath);
+
 	template<typename ValueType>
 	ValueType getOrDefault(const std::map<std::wstring, ValueType>& map, const wchar_t* lookupKey, ValueType default_value)
 	{

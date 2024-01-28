@@ -173,6 +173,7 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="TomlBuilder.h" />
     <ClInclude Include="UIParameters.h" />
     <ClInclude Include="utils.h" />
   </ItemGroup>
@@ -185,6 +186,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="TomlBuilder.cpp" />
     <ClCompile Include="UIParameters.cpp" />
     <ClCompile Include="utils.cpp" />
   </ItemGroup>

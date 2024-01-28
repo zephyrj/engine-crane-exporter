@@ -107,7 +107,8 @@ AuCarExpErrorCode AuCarExportDLL::GetLuaFileCount(unsigned int* fileCount)
 
 AuCarExpErrorCode AuCarExportDLL::GetLuaFileLength(unsigned int* retLength, unsigned int FileNum)
 {
-	*retLength = ExportHandler::Instance()->GetExporterScriptLength();
+	auto scriptLen = ExportHandler::Instance()->GetExporterScriptLength();
+	*retLength = scriptLen+1;
 	return AuCarExpErrorCode_Success;
 }
 
@@ -118,7 +119,8 @@ AuCarExpErrorCode AuCarExportDLL::GetLuaFile(AuCarExpArray<wchar_t>& stringBuffe
 		return AuCarExpErrorCode_UnknownError;
 	}
 
-	if ((ExportHandler::Instance()->GetExporterScriptLength()) <= stringBuffer.GetCount())
+	size_t bufferSize = stringBuffer.GetCount();
+	if ((ExportHandler::Instance()->GetExporterScriptLength()) <= bufferSize)
 	{
 		unsigned int idx = 0;
 		for (const auto& c : ExportHandler::Instance()->GetExporterScript())
@@ -126,6 +128,7 @@ AuCarExpErrorCode AuCarExportDLL::GetLuaFile(AuCarExpArray<wchar_t>& stringBuffe
 			stringBuffer[idx] = c;
 			++idx;
 		}
+		stringBuffer[bufferSize] = '\0';
 	}
 	return AuCarExpErrorCode_Success;
 }
