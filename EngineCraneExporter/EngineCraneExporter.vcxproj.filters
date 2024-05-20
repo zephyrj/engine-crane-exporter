@@ -39,6 +39,12 @@
     <ClInclude Include="TomlBuilder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="plugin_helper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="plugin_exception.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -57,6 +63,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TomlBuilder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="plugin_helper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="plugin_exception.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

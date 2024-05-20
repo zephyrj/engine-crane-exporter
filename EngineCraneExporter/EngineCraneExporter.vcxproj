@@ -122,6 +122,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(SolutionDir)Include\;$(SolutionDir)External\</AdditionalIncludeDirectories>
+      <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -169,6 +170,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="constants.h" />
+    <ClInclude Include="plugin_exception.h" />
+    <ClInclude Include="plugin_helper.h" />
     <ClInclude Include="ExportHandler.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
@@ -178,6 +181,8 @@
     <ClInclude Include="utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="plugin_exception.cpp" />
+    <ClCompile Include="plugin_helper.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="ExportHandler.cpp" />
     <ClCompile Include="pch.cpp">
