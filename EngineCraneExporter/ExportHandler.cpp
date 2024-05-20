@@ -6,6 +6,8 @@
 #include "UIParameters.h"
 #include "utils.h"
 
+#define GET_UI_STRING(UIEnum) m_UiData->GetStringData(ui::getUIIndex(UIEnum))->Value
+#define GET_UI_BOOL(UIEnum) m_UiData->GetBoolData(ui::getUIIndex(UIEnum))->Value
 
 namespace {
 	struct ScopedOutputStream {
@@ -103,13 +105,22 @@ ExportHandler::ExportHandler() :
 	m_UiData(nullptr),
 	m_ExportDirectory(), 
 	m_ExporterScript(),
-	m_LuaFloatData(),
-	m_LuaStringData(),
+	m_exporter_p(nullptr),
 	m_LuaDataFiles()
 {}
 
 AuCarExpErrorCode ExportHandler::Init(const AuCarExpCarData* exportUiData)
 {
+	m_exporter_p = std::make_unique<Exporter>();
+	try {
+		m_exporter_p->init(0);
+		std::cout << "Loaded " << EXPORTER_DLL_NAME << ": " << std::hex << m_exporter_p << std::endl;
+	} 
+	catch (const FailedToLoadLibrary& e) {
+		MessageBox(nullptr, reinterpret_cast<const wchar_t*>(e.what()), TEXT("Exporter load error"), MB_OK);
+		return AuCarExpErrorCode_CouldNotObtainOutputPathFatal;
+	}
+	
 	m_UiData = exportUiData;
 	auto exportDirRes = setupExportDirectory();
 	if (exportDirRes) return exportDirRes;
@@ -150,7 +161,7 @@ AuCarExpErrorCode ExportHandler::setupExportDirectory()
 AuCarExpErrorCode ExportHandler::setupExporterScript()
 {
 	// If there is a custom script dir provided then use that else use the bundled resource
-	std::wstring scriptPath = m_UiData->GetStringData(ui::getUIIndex(ui::StringElement::ExporterScriptPath))->Value;
+	std::wstring scriptPath = GET_UI_STRING(ui::StringElement::ExporterScriptPath);
 	if (!scriptPath.empty()) {
 		ScopedInputStream s(scriptPath);
 		if (s.stream.is_open()) {
@@ -176,98 +187,46 @@ AuCarExpErrorCode ExportHandler::setupExporterScript()
 void ExportHandler::EndExport()
 {
 	m_IsExportInProcess = true;
-	writeDataFile();
+	bool dump_json = GET_UI_BOOL(ui::BoolElement::DumpJson);
+	if (dump_json) {
+		std::string path = m_utf8Converter.to_bytes(m_ExportDirectory);
+		m_exporter_p->dump_json(path.c_str());
+	}
 	m_IsExportInProcess = false;
-}
-
-void ExportHandler::writeClassic(std::wstring filepath)
-{
-	std::wstring_convert<std::codecvt_utf8<wchar_t>> utf8Converter;
-	try {
-		ScopedOutputStream s(filepath);
-		toml::table data;
-		for (auto const& it : m_LuaStringData)
-		{
-			std::string luaKey = utf8Converter.to_bytes(it.first);
-			auto parts = splitKey(luaKey, '.');
-			std::string luaVal = utf8Converter.to_bytes(it.second);
-			data[parts.back()] = luaVal;
-		}
-		for (auto const& it : m_LuaFloatData)
-		{
-			std::string luaKey = utf8Converter.to_bytes(it.first);
-			auto luaVal = it.second;
-			data[luaKey] = luaVal;
-		}
-		s.stream << toml::value(data);
-	}
-	catch (const std::exception& e) {
-		std::wstring error = L"Failed to write ";
-		error += filepath.c_str();
-		error += L" : ";
-		error += utf8Converter.from_bytes(e.what());
-		MessageBox(nullptr, error.c_str(), TEXT("Write Error"), MB_OK);
-	}
-}
-
-void ExportHandler::writeToml(std::wstring filepath)
-{
-	std::wstring_convert<std::codecvt_utf8<wchar_t>> utf8Converter;
-	try {
-		ScopedOutputStream s(filepath);
-		TomlBuilder builder;
-		for (auto const& it : m_LuaStringData)
-		{
-			builder.add(utf8Converter.to_bytes(it.first), utf8Converter.to_bytes(it.second));
-		}
-		for (auto const& it : m_LuaFloatData)
-		{
-			builder.add(utf8Converter.to_bytes(it.first), it.second);
-		}
-		try {
-			s.stream << builder.build();
-		}
-		catch (const std::exception& e) {
-			std::wstring error = L"Failed to write ";
-			error += filepath.c_str();
-			error += L" : ";
-			error += utf8Converter.from_bytes(e.what());
-			MessageBox(nullptr, error.c_str(), TEXT("Write Error"), MB_OK);
-		}
-	}
-	catch (const std::exception& e) {
-		std::wstring error = L"Failed to build ";
-		error += filepath.c_str();
-		error += L" : ";
-		error += utf8Converter.from_bytes(e.what());
-		MessageBox(nullptr, error.c_str(), TEXT("Build Error"), MB_OK);
-	}
-}
-
-void ExportHandler::writeDataFile()
-{
-	std::wstring filename = m_UiData->GetStringData(ui::getUIIndex(ui::StringElement::Filename))->Value;
-	if (filename.empty()) {
-		auto family = getOrDefault(m_LuaStringData, L"FamilyName", std::wstring(L"UnknownFamily"));
-		auto variant = getOrDefault(m_LuaStringData, L"VariantName", std::wstring(L"Variant"));
-		filename = family + L"-" + variant + L".toml";
-	};
-	sanitizeFileName(filename);
-	auto filepath = m_ExportDirectory + L"\\" + filename;
-	writeToml(filepath);
 }
 
 void ExportHandler::AddLuaFloatData(const AuCarExpArray<AuCarExpLuaFloatData>& Data)
 {
 	for (unsigned int i = 0; i < Data.GetCount(); i++) {
-		m_LuaFloatData[Data[i].ValueName] = Data[i].Value;
+		std::string luaKey = m_utf8Converter.to_bytes(std::wstring(Data[i].ValueName));
+		auto keyParts = splitKey(luaKey, '.');
+		if (keyParts.size() < 2)
+			continue;
+
+		if (keyParts[0] == "Curve") {
+			if (keyParts.size() < 3)
+				continue;
+			const std::string& curveName = keyParts[1];
+			size_t index = std::stoi(keyParts[2]);
+			m_exporter_p->add_curve_data(curveName.c_str(), index, Data[i].Value);
+		}
+		else {
+			m_exporter_p->add_float(keyParts[0].c_str(), keyParts[1].c_str(), Data[i].Value);
+		}
 	}
 }
 
 void ExportHandler::AddLuaStringData(const AuCarExpArray<AuCarExpLuaStringData>& Data)
 {
 	for (unsigned int i = 0; i < Data.GetCount(); i++) {
-		m_LuaStringData[Data[i].ValueName] = Data[i].Buffer;
+		std::string luaKey = m_utf8Converter.to_bytes(std::wstring(Data[i].ValueName));
+		auto keyParts = splitKey(luaKey, '.');
+		if (keyParts.size() < 2)
+			continue;
+
+		m_exporter_p->add_string(keyParts[0].c_str(),
+			keyParts[1].c_str(),
+			m_utf8Converter.to_bytes(std::wstring(Data[i].Buffer)).c_str());
 	}
 }
 

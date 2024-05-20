@@ -1,6 +1,7 @@
 #pragma once
 
 #include "AuCarExport.h"
+#include "plugin_helper.h"
 
 class ExportHandler
 {
@@ -16,7 +17,6 @@ public:
 
 	AuCarExpErrorCode Init(const AuCarExpCarData* carData);
 	void EndExport();
-	void writeDataFile();
 
 	void AddLuaFloatData(const AuCarExpArray<AuCarExpLuaFloatData>& Data);
 	void AddLuaStringData(const AuCarExpArray<AuCarExpLuaStringData>& Data);
@@ -37,23 +37,13 @@ protected:
 	AuCarExpErrorCode setupExportDirectory();
 	AuCarExpErrorCode setupExporterScript();
 
-	void writeClassic(std::wstring filePath);
-	void writeToml(std::wstring filePath);
-
-	template<typename ValueType>
-	ValueType getOrDefault(const std::map<std::wstring, ValueType>& map, const wchar_t* lookupKey, ValueType default_value)
-	{
-		auto it = map.find(lookupKey);
-		auto val = (it == std::end(map)) ? default_value : it->second;
-		return val;
-	}
-
 	bool m_IsExportInProcess;
 	const AuCarExpCarData* m_UiData;
 	std::wstring m_ExportDirectory;
 	std::string m_ExporterScript;
 
-	std::map<std::wstring, float> m_LuaFloatData;
-	std::map<std::wstring, std::wstring> m_LuaStringData;
+	std::wstring_convert<std::codecvt_utf8<wchar_t>> m_utf8Converter;
+	std::unique_ptr<Exporter> m_exporter_p;
+
 	std::map<std::wstring, AuCarLuaDataFile> m_LuaDataFiles;
 };

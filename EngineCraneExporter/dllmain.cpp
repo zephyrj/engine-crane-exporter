@@ -114,17 +114,14 @@ AuCarExpErrorCode AuCarExportDLL::GetLuaFileLength(unsigned int* retLength, unsi
 
 AuCarExpErrorCode AuCarExportDLL::GetLuaFile(AuCarExpArray<wchar_t>& stringBuffer, unsigned int FileNum)
 {
-	if (!stringBuffer.GetData())
-	{
+	if (!stringBuffer.GetData()) {
 		return AuCarExpErrorCode_UnknownError;
 	}
 
 	size_t bufferSize = stringBuffer.GetCount();
-	if ((ExportHandler::Instance()->GetExporterScriptLength()) <= bufferSize)
-	{
+	if ((ExportHandler::Instance()->GetExporterScriptLength()) <= bufferSize) {
 		unsigned int idx = 0;
-		for (const auto& c : ExportHandler::Instance()->GetExporterScript())
-		{
+		for (const auto& c : ExportHandler::Instance()->GetExporterScript()) {
 			stringBuffer[idx] = c;
 			++idx;
 		}
@@ -133,7 +130,7 @@ AuCarExpErrorCode AuCarExportDLL::GetLuaFile(AuCarExpArray<wchar_t>& stringBuffe
 	return AuCarExpErrorCode_Success;
 }
 
-// Unused by this exporter
+// All functions below this line are currently unused by this exporter
 AuCarExpErrorCode AuCarExportDLL::AddBodyMesh(AuCarExpMesh* mesh) { return AuCarExpErrorCode_Success; }
 AuCarExpErrorCode AuCarExportDLL::AddEngineMesh(const AuCarExpMesh* mesh, const wchar_t* name) { return AuCarExpErrorCode_Success; }
 AuCarExpErrorCode AuCarExportDLL::AddEngineMeshInstance(const AuCarExpMeshInstance* meshInstance) { return AuCarExpErrorCode_Success; }

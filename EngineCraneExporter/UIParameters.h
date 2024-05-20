@@ -1,14 +1,18 @@
 #include "AuCarExport.h"
 
 namespace ui {
+	// To add in a new element add a value here and add a corresponding enty into
+	// STRING_ELEMENTS in the .cpp
 	enum class StringElement : size_t {
-		Filename = 0,
-		ExporterScriptPath,
+		ExporterScriptPath = 0,
 		Count
 	};
 
+	// To add in a new element add a value here and add a corresponding enty into
+	// BOOL_ELEMENTS in the .cpp
 	enum class BoolElement : size_t {
-		Count = 0,
+		DumpJson = 0,
+		Count
 	};
 
 	constexpr size_t NUM_STRINGS = static_cast<size_t>(StringElement::Count);

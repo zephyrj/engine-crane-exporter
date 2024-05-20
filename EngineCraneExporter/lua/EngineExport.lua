@@ -1,8 +1,5 @@
 -- Exporter code based off the ExportExample.lua file from 
 -- https://github.com/EndfinityDev/csvExporter
----------------------------------------------------
--- Copyright (c) 2021 -- Camshaft Software PTY LTD
----------------------------------------------------
 
 SCRIPT_VERSION = 20240101
 
@@ -345,33 +342,19 @@ function AddProductionData(CarCalculator)
 	Labor = {SWEATSHOP = 5, CHEAP = 10, AVERAGE = 20, EXPENSIVE = 30}
 	Automation = {NONE = 1, LOW = 1.2, MEDIUM = 1.5, HIGH = 2}
 
-	--Medium factory, cheap labor, medium automation, 2 shifts
 	Data[tablePrefix .. "CostPreset0"] = CalculateCost(EngineResults, Factory.LARGE, Labor.CHEAP, Automation.MEDIUM, 2)
-	--Large factory, cheap labor, medium automation, 2 shifts
 	Data[tablePrefix .. "CostPreset1"] = CalculateCost(EngineResults, Factory.HUGE, Labor.CHEAP, Automation.MEDIUM, 2)
-	--Medium factory, average labor, high automation, 2 shifts
 	Data[tablePrefix .. "CostPreset2"] = CalculateCost(EngineResults, Factory.MEDIUM, Labor.AVERAGE, Automation.HIGH, 2)
-	--Medium factory, average labor, high automation, 3 shifts
 	Data[tablePrefix .. "CostPreset3"] = CalculateCost(EngineResults, Factory.SMALL, Labor.AVERAGE, Automation.HIGH, 3)
-	--Small factory, average labor, medium automation, 2 shifts
 	Data[tablePrefix .. "CostPreset4"] = CalculateCost(EngineResults, Factory.TINY, Labor.AVERAGE, Automation.MEDIUM, 2)
-	--Small factory, cheap labor, medium automation, 3 shifts
 	Data[tablePrefix .. "CostPreset5"] = CalculateCost(EngineResults, Factory.TINY, Labor.CHEAP, Automation.MEDIUM, 3)
-	--Tiny factory, cheap labor, no automation, 2 shifts
 	Data[tablePrefix .. "CostPreset6"] = CalculateCost(EngineResults, Factory.SHED, Labor.CHEAP, Automation.NONE, 2)
-	--Tiny factory, average labor, no automation, 2 shifts
 	Data[tablePrefix .. "CostPreset7"] = CalculateCost(EngineResults, Factory.SHED, Labor.AVERAGE, Automation.NONE, 2)
-	--Tiny factory, expensive labor, no automation, 1 shift
 	Data[tablePrefix .. "CostPreset8"] = CalculateCost(EngineResults, Factory.SHED, Labor.EXPENSIVE, Automation.NONE, 1)
-	--Medium factory, very cheap labor, low automation, 3 shifts
 	Data[tablePrefix .. "CostPreset9"] = CalculateCost(EngineResults, Factory.LARGE, Labor.SWEATSHOP, Automation.LOW, 3)
-	--Large factory, very cheap labor, low automation, 3 shifts
 	Data[tablePrefix .. "CostPreset10"] = CalculateCost(EngineResults, Factory.HUGE, Labor.SWEATSHOP, Automation.LOW, 3)
-	--Large factory, average labor, medium automation, 2 shifts
 	Data[tablePrefix .. "CostPreset11"] = CalculateCost(EngineResults, Factory.HUGE, Labor.AVERAGE, Automation.MEDIUM, 2)
-	--Small factory, expensive labor, high automation, 2 shifts
 	Data[tablePrefix .. "CostPreset12"] = CalculateCost(EngineResults, Factory.TINY, Labor.EXPENSIVE, Automation.HIGH, 2)
-	--Tiny factory, expensive labor, high automation, 2 shifts
 	Data[tablePrefix .. "CostPreset13"] = CalculateCost(EngineResults, Factory.SHED, Labor.EXPENSIVE, Automation.HIGH, 2)
 
 	return Data
