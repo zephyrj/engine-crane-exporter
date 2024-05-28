@@ -188,10 +188,11 @@ void ExportHandler::EndExport()
 {
 	m_IsExportInProcess = true;
 	bool dump_json = GET_UI_BOOL(ui::BoolElement::DumpJson);
+	std::string path = m_utf8Converter.to_bytes(m_ExportDirectory);
 	if (dump_json) {
-		std::string path = m_utf8Converter.to_bytes(m_ExportDirectory);
 		m_exporter_p->dump_json(path.c_str());
 	}
+	m_exporter_p->finalise(path.c_str());
 	m_IsExportInProcess = false;
 }
 
