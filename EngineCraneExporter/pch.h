@@ -6,6 +6,7 @@
 
 #ifndef PCH_H
 #define PCH_H
+#define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
 
 // add headers that you want to pre-compile here
 #include "framework.h"
@@ -22,4 +23,6 @@
 #include <map>
 #include <iostream>
 #include <fstream>
+#include <optional>
+#include <filesystem>
 #endif //PCH_H
