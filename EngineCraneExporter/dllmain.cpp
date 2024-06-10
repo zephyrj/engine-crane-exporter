@@ -33,6 +33,7 @@ AuCarExpErrorCode AuCarExportDLL::GetRequiredStringDataCount(unsigned int* retCo
 //Gets the user-supplied string information
 AuCarExpErrorCode AuCarExportDLL::GetRequiredStringData(AuCarExpArray<AuCarExpUIStringData>& stringData, wchar_t const* locale)
 {
+	ui::set_default<ui::StringElement::ExporterScriptPath>(L"default/path");
 	return ui::SetupStringData(stringData);
 }
 

@@ -1,7 +1,10 @@
 #pragma once
 
+#include "pch.h"
 #include "AuCarExport.h"
 #include "plugin_helper.h"
+#include "ConfigHandler.h"
+#include "UIParameters.h"
 
 class ExportHandler
 {
@@ -29,6 +32,17 @@ public:
 	unsigned int GetExporterScriptLength() const { return m_ExporterScript.length(); }
 	const std::string& GetExporterScript() const { return m_ExporterScript; }
 
+	// Generalized get_ui_value function
+	template <typename T>
+	auto get_ui_value(T e) {
+		if constexpr (std::is_same_v<T, ui::StringElement>) {
+			return m_UiData->GetStringData(ui::getUIIndex(e))->Value;
+		}
+		else if constexpr (std::is_same_v<T, ui::BoolElement>) {
+			return m_UiData->GetBoolData(ui::getUIIndex(e))->Value;
+		}
+	}
+
 protected:
 	static ExportHandler* s_Instance;
 
@@ -39,6 +53,7 @@ protected:
 
 	bool m_IsExportInProcess;
 	const AuCarExpCarData* m_UiData;
+	ConfigHandler m_configHandler;
 	std::wstring m_ExportDirectory;
 	std::string m_ExporterScript;
 

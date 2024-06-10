@@ -3,11 +3,8 @@
 
 #include "constants.h"
 #include "TomlBuilder.h"
-#include "UIParameters.h"
 #include "utils.h"
 
-#define GET_UI_STRING(UIEnum) m_UiData->GetStringData(ui::getUIIndex(UIEnum))->Value
-#define GET_UI_BOOL(UIEnum) m_UiData->GetBoolData(ui::getUIIndex(UIEnum))->Value
 
 namespace {
 	struct ScopedOutputStream {
@@ -122,6 +119,16 @@ AuCarExpErrorCode ExportHandler::Init(const AuCarExpCarData* exportUiData)
 	}
 	
 	m_UiData = exportUiData;
+	try {
+		m_configHandler.load();
+	}
+	catch (const config::LoadFailed&) {
+		// TODO log an error here
+	}
+	auto custom_export_script = m_configHandler.exporterScriptPath();
+	if (custom_export_script) {
+
+	}
 	auto exportDirRes = setupExportDirectory();
 	if (exportDirRes) return exportDirRes;
 	return setupExporterScript();
@@ -131,8 +138,9 @@ AuCarExpErrorCode ExportHandler::setupExportDirectory()
 {
 	PWSTR path = NULL;
 	HRESULT hr = SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, 0, &path);
-	if (FAILED(hr))
+	if (FAILED(hr)) {
 		return AuCarExpErrorCode_CouldNotObtainOutputPathFatal;
+	}
 
 	m_ExportDirectory = path;
 	m_ExportDirectory += EngineCraneAppDataExportPath;
@@ -161,7 +169,7 @@ AuCarExpErrorCode ExportHandler::setupExportDirectory()
 AuCarExpErrorCode ExportHandler::setupExporterScript()
 {
 	// If there is a custom script dir provided then use that else use the bundled resource
-	std::wstring scriptPath = GET_UI_STRING(ui::StringElement::ExporterScriptPath);
+	std::wstring scriptPath = get_ui_value(ui::StringElement::ExporterScriptPath);
 	if (!scriptPath.empty()) {
 		ScopedInputStream s(scriptPath);
 		if (s.stream.is_open()) {
@@ -187,7 +195,7 @@ AuCarExpErrorCode ExportHandler::setupExporterScript()
 void ExportHandler::EndExport()
 {
 	m_IsExportInProcess = true;
-	bool dump_json = GET_UI_BOOL(ui::BoolElement::DumpJson);
+	bool dump_json = get_ui_value(ui::BoolElement::DumpJson);
 	std::string path = m_utf8Converter.to_bytes(m_ExportDirectory);
 	if (dump_json) {
 		m_exporter_p->dump_json(path.c_str());
