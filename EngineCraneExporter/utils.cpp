@@ -25,3 +25,20 @@ size_t FindDirDelimiter(std::wstring dir, size_t start)
 
 	return slashPos;
 }
+
+bool tryWriteToDirectory(const std::wstring& path) {
+	std::wstring test_file = path + L"/test_write_permissions.tmp";
+	std::ofstream ofs(test_file);
+	if (!ofs) {
+		return false;
+	}
+
+	try {
+		ofs.close();
+		std::filesystem::remove(test_file);
+		return true;
+	}
+	catch (const std::exception&) {
+		return false;
+	}
+}
