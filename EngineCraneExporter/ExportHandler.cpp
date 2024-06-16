@@ -68,14 +68,6 @@ namespace {
 		bool locked;
 	};
 
-	bool isDirectory(const std::wstring& path)
-	{
-		DWORD att = GetFileAttributes(path.c_str());
-		if (att == INVALID_FILE_ATTRIBUTES || !(att & FILE_ATTRIBUTE_DIRECTORY)) 
-			return false;
-		return true;
-	}
-
 	std::vector<std::string> splitKey(std::string fullKey, const char delimiter)
 	{
 		std::vector<std::string> keyParts;
@@ -125,10 +117,6 @@ AuCarExpErrorCode ExportHandler::Init(const AuCarExpCarData* exportUiData)
 	catch (const config::LoadFailed&) {
 		// TODO log an error here
 	}
-	auto custom_export_script = m_configHandler.exporterScriptPath();
-	if (custom_export_script) {
-
-	}
 	auto exportDirRes = setupExportDirectory();
 	if (exportDirRes) return exportDirRes;
 	return setupExporterScript();
@@ -136,32 +124,19 @@ AuCarExpErrorCode ExportHandler::Init(const AuCarExpCarData* exportUiData)
 
 AuCarExpErrorCode ExportHandler::setupExportDirectory()
 {
-	PWSTR path = NULL;
-	HRESULT hr = SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, 0, &path);
-	if (FAILED(hr)) {
-		return AuCarExpErrorCode_CouldNotObtainOutputPathFatal;
+	std::wstring exportPath(get_ui_value(ui::StringElement::ExportDirectory));
+	if (!exportPath.empty()) {
+		MessageBox(nullptr, exportPath.c_str(), TEXT("Using ui export dir value"), MB_OK);
+		m_ExportDirectory = exportPath;
 	}
-
-	m_ExportDirectory = path;
-	m_ExportDirectory += EngineCraneAppDataExportPath;
-	if (!isDirectory(m_ExportDirectory)) {
-		//create directory, one level at a time:
-		size_t slashPos = FindDirDelimiter(m_ExportDirectory, 0);
-		size_t offset = 0;
-		while (slashPos != std::wstring::npos)
-		{
-			CreateDirectory(m_ExportDirectory.substr(offset, slashPos - offset).c_str(), nullptr);
-			slashPos = FindDirDelimiter(m_ExportDirectory, slashPos + 1);
+	else {
+		PWSTR path = NULL;
+		HRESULT hr = SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, 0, &path);
+		if (FAILED(hr)) {
+			return AuCarExpErrorCode_CouldNotObtainOutputPathFatal;
 		}
-		//last one:
-		CreateDirectory(m_ExportDirectory.c_str(), nullptr);
-	}
-
-	if (!isDirectory(m_ExportDirectory)) {
-		std::wstring error = L"Could not create directory: ";
-		error += m_ExportDirectory;
-		MessageBox(nullptr, error.c_str(), TEXT("Error creating directory"), MB_OK);
-		return AuCarExpErrorCode_CouldNotObtainOutputPathFatal;
+		m_ExportDirectory = std::wstring(path);
+		m_ExportDirectory += EngineCraneAppDataExportPath;
 	}
 	return AuCarExpErrorCode_Success;
 }
@@ -169,7 +144,7 @@ AuCarExpErrorCode ExportHandler::setupExportDirectory()
 AuCarExpErrorCode ExportHandler::setupExporterScript()
 {
 	// If there is a custom script dir provided then use that else use the bundled resource
-	std::wstring scriptPath = get_ui_value(ui::StringElement::ExporterScriptPath);
+	std::wstring scriptPath(get_ui_value(ui::StringElement::ExporterScriptPath));
 	if (!scriptPath.empty()) {
 		ScopedInputStream s(scriptPath);
 		if (s.stream.is_open()) {
@@ -195,13 +170,40 @@ AuCarExpErrorCode ExportHandler::setupExporterScript()
 void ExportHandler::EndExport()
 {
 	m_IsExportInProcess = true;
-	bool dump_json = get_ui_value(ui::BoolElement::DumpJson);
 	std::string path = m_utf8Converter.to_bytes(m_ExportDirectory);
+
+	bool dump_json = get_ui_value(ui::BoolElement::DumpJson);
 	if (dump_json) {
 		m_exporter_p->dump_json(path.c_str());
 	}
-	m_exporter_p->finalise(path.c_str());
+	auto success = m_exporter_p->finalise(path.c_str());
+	if (success) {
+		updateSavedConfig();
+	}
+	else {
+		MessageBox(nullptr, L"returned false", TEXT("No success result"), MB_OK);
+	}
 	m_IsExportInProcess = false;
+}
+
+void ExportHandler::updateSavedConfig()
+{
+	auto new_script_path = std::make_optional<std::wstring>();
+	std::wstring scriptPath = get_ui_value(ui::StringElement::ExporterScriptPath);
+	if (!scriptPath.empty()) {
+		new_script_path = new_script_path;
+	}
+	m_configHandler.exporterScriptPath(new_script_path);
+	m_configHandler.exportDirectory(m_ExportDirectory);
+	try {
+		m_configHandler.store();
+	}
+	catch (const config::StoreFailed& e) {
+		std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+		std::wstring error = L"Could store prefs: ";
+		error += converter.from_bytes(e.what());
+		MessageBox(nullptr, error.c_str(), TEXT("Error loading resource"), MB_OK);
+	}
 }
 
 void ExportHandler::AddLuaFloatData(const AuCarExpArray<AuCarExpLuaFloatData>& Data)

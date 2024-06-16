@@ -33,7 +33,18 @@ AuCarExpErrorCode AuCarExportDLL::GetRequiredStringDataCount(unsigned int* retCo
 //Gets the user-supplied string information
 AuCarExpErrorCode AuCarExportDLL::GetRequiredStringData(AuCarExpArray<AuCarExpUIStringData>& stringData, wchar_t const* locale)
 {
-	ui::set_default<ui::StringElement::ExporterScriptPath>(L"default/path");
+	auto success = config::load_config_and_call([](const ConfigHandler& cfg) {
+		auto custom_export_script = cfg.exporterScriptPath();
+		if (custom_export_script) {
+			ui::set_default<ui::StringElement::ExporterScriptPath>(custom_export_script.value());
+		}
+		auto export_dir = cfg.exportDirectory();
+		if (export_dir) {
+			MessageBox(nullptr, export_dir.value().c_str(), TEXT("Setting ui default"), MB_OK);
+			ui::set_default<ui::StringElement::ExportDirectory>(export_dir.value());
+		}
+		return true;
+	});
 	return ui::SetupStringData(stringData);
 }
 
@@ -52,6 +63,7 @@ AuCarExpErrorCode AuCarExportDLL::GetRequiredBoolData(AuCarExpArray<AuCarExpUIBo
 
 AuCarExpErrorCode AuCarExportDLL::BeginExport(const AuCarExpCarData* carData, AuCarExpArray<wchar_t>& retDir, unsigned int* retFlags)
 {
+	MessageBox(nullptr, L"Calling init", TEXT("Calling init"), MB_OK);
 	ExportHandler::CreateInstance();
 	AuCarExpErrorCode error = ExportHandler::Instance()->Init(carData);
 	wcscpy_s(retDir.GetData(), retDir.GetCount(), ExportHandler::Instance()->GetExportDirectory());

@@ -32,7 +32,7 @@ public:
 	unsigned int GetExporterScriptLength() const { return m_ExporterScript.length(); }
 	const std::string& GetExporterScript() const { return m_ExporterScript; }
 
-	// Generalized get_ui_value function
+protected:
 	template <typename T>
 	auto get_ui_value(T e) {
 		if constexpr (std::is_same_v<T, ui::StringElement>) {
@@ -43,13 +43,14 @@ public:
 		}
 	}
 
-protected:
 	static ExportHandler* s_Instance;
 
 	ExportHandler();
 
 	AuCarExpErrorCode setupExportDirectory();
 	AuCarExpErrorCode setupExporterScript();
+
+	void updateSavedConfig();
 
 	bool m_IsExportInProcess;
 	const AuCarExpCarData* m_UiData;

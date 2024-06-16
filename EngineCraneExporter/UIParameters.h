@@ -7,6 +7,7 @@ namespace ui {
 	// STRING_ELEMENTS
 	enum class StringElement : size_t {
 		ExporterScriptPath = 0,
+		ExportDirectory,
 		Count
 	};
 
@@ -41,8 +42,8 @@ namespace ui {
 		StringElementType(const wchar_t* label, const wchar_t* tooltip, const wchar_t* default_value);
 		void update(AUDataType& data) const;
 		std::wstring label;
-		std::wstring tooltip = nullptr;
-		std::wstring default_value = nullptr;
+		std::wstring tooltip;
+		std::wstring default_value;
 	};
 	
 
@@ -52,24 +53,13 @@ namespace ui {
 		BoolElementType();
 		BoolElementType(const wchar_t* label, const wchar_t* tooltip, bool default_value);
 		void update(AUDataType& data) const;
-		std::wstring label = nullptr;
-		std::wstring tooltip = nullptr;
+		std::wstring label;
+		std::wstring tooltip;
 		bool default_value = false;
 	};
 
-	static std::array<StringElementType, NUM_STRINGS> STRING_ELEMENTS = {
-		StringElementType(
-			L"Exporter Script Path",
-			L"The exporter script will be found automatically - if you'd like to use a custom script you can enter the path here",
-			L""),
-	};
-
-	static std::array<BoolElementType, NUM_BOOLS> BOOL_ELEMENTS = {
-		BoolElementType(
-			L"Dump JSON file",
-			L"Dump all of the data collected by the exporter to a json file. Useful for debugging purposes",
-			false)
-	};
+	extern std::array<StringElementType, NUM_STRINGS> STRING_ELEMENTS;
+	extern std::array<BoolElementType, NUM_BOOLS> BOOL_ELEMENTS;
 
 	template<typename UiElementType, std::size_t N>
 	AuCarExpErrorCode SetupUIData(std::array<UiElementType, N> elements,

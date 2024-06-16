@@ -95,7 +95,7 @@ bool Exporter::finalise(const char* output_path)
 {
     auto res = false;
     if (m_exporterHandle_p) {
-        call_exporter_func<ExporterFinalise>(m_exporterHandle_p, output_path);
+        res = call_exporter_func<ExporterFinalise>(m_exporterHandle_p, output_path);
         m_exporterHandle_p = nullptr;
     }
     return res;

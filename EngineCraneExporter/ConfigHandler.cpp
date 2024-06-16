@@ -1,5 +1,7 @@
 #include "pch.h"
 #include "ConfigHandler.h"
+#include "constants.h"
+#include "utils.h"
 
 namespace {
     constexpr const char* EXPORT_DIR_KEY = "export-directory";
@@ -9,7 +11,7 @@ namespace {
     {
         try {
             std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-            return converter.from_bytes(toml::find<std::string>(toml_val, key));
+            return std::make_optional<std::wstring>(converter.from_bytes(toml::find<std::string>(toml_val, key)));
         }
         catch (const std::out_of_range&) {
             return std::nullopt;
@@ -34,6 +36,18 @@ namespace {
             t.erase(key);
         }
     }
+
+    std::wstring get_config_file_dir()
+    {
+        std::wstring config_file_path;
+        TCHAR path[MAX_PATH];
+        if (SHGetFolderPathW(0, CSIDL_LOCAL_APPDATA, 0, SHGFP_TYPE_CURRENT, path) == S_OK)
+        {
+            config_file_path += path;
+            config_file_path += L"\\AutomationGame\\ExporterPrefs\\";
+        }
+        return config_file_path;
+    }
 }
 
 namespace config {
@@ -56,19 +70,21 @@ namespace config {
     LoadFailed::~LoadFailed() = default;
     StoreFailed::~StoreFailed() = default;
 }
+
 ConfigHandler::ConfigHandler() = default;
 ConfigHandler::~ConfigHandler() = default;
 
 void ConfigHandler::load()
 {
-    if (!std::filesystem::exists(CONFIG_FILE_PATH)) {
+    std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+    std::string config_file_path = converter.to_bytes(::get_config_file_dir());
+    config_file_path += std::string(CONFIG_FILE_PATH);
+    if (!std::filesystem::exists(config_file_path)) {
         return;
     }
+
     try {
-        toml::value config = toml::parse(CONFIG_FILE_PATH);
-        if (!config.is_table()) {
-            throw config::LoadFailed(std::string("Unexpected TOML format: Expected a table structure"));
-        }
+        toml::value config = toml::parse(config_file_path);
         m_config = config;
     }
     catch (const toml::syntax_error& err) {
@@ -81,7 +97,12 @@ void ConfigHandler::load()
 
 void ConfigHandler::store()
 {
-    std::ofstream ofs(CONFIG_FILE_PATH);
+    auto config_dir = ::get_config_file_dir();
+    createDirectoryTree(config_dir);
+    std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+    std::string config_file_path = converter.to_bytes(config_dir);
+    config_file_path += std::string(CONFIG_FILE_PATH);
+    std::ofstream ofs(config_file_path);
     if (ofs.is_open()) {
         ofs << toml::format(m_config);
         ofs.close();
