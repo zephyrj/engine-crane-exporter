@@ -67,3 +67,29 @@ bool tryWriteToDirectory(const std::wstring& path)
 		return false;
 	}
 }
+
+void debugDialog(std::string title, std::string err_msg)
+{
+#ifdef _DEBUG
+	std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+	std::wstring wtitle = converter.from_bytes(title);
+	std::wstring werror = converter.from_bytes(err_msg);
+	MessageBox(nullptr, werror.c_str(), wtitle.c_str(), MB_OK);
+#endif
+}
+
+void debugDialog(std::wstring title, std::wstring err_msg)
+{
+#ifdef _DEBUG
+	MessageBox(nullptr, err_msg.c_str(), title.c_str(), MB_OK);
+#endif
+}
+
+void debugDialog(std::wstring title, std::wstring err_prefix, const std::exception& e)
+{
+#ifdef _DEBUG
+	std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+	err_prefix += converter.from_bytes(e.what());
+	MessageBox(nullptr, err_prefix.c_str(), title.c_str(), MB_OK);
+#endif
+}

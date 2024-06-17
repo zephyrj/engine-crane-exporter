@@ -1,6 +1,7 @@
 #pragma once
 #include "pch.h"
 #include "exception.h"
+#include "utils.h"
 #include <toml11/toml.hpp>
 
 class ConfigHandler;
@@ -26,10 +27,7 @@ namespace config {
 			configHandler.load();
 		}
 		catch (const config::LoadFailed& e) {
-			std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-			std::wstring error = L"Could not load prefs: ";
-			error += converter.from_bytes(e.what());
-			MessageBox(nullptr, error.c_str(), TEXT("Failed to load config"), MB_OK);
+			debugDialog(TEXT("Failed to load config"), L"Could not load prefs: ", e);
 			return false;
 		}
 		return callback(configHandler);

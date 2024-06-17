@@ -126,7 +126,7 @@ AuCarExpErrorCode ExportHandler::setupExportDirectory()
 {
 	std::wstring exportPath(get_ui_value(ui::StringElement::ExportDirectory));
 	if (!exportPath.empty()) {
-		MessageBox(nullptr, exportPath.c_str(), TEXT("Using ui export dir value"), MB_OK);
+		debugDialog(TEXT("Using ui export dir value"), exportPath.c_str());
 		m_ExportDirectory = exportPath;
 	}
 	else {
@@ -181,7 +181,8 @@ void ExportHandler::EndExport()
 		updateSavedConfig();
 	}
 	else {
-		MessageBox(nullptr, L"returned false", TEXT("No success result"), MB_OK);
+		// TODO allow retrieval of last error and display it here
+		MessageBox(nullptr, L"", TEXT("Export failed"), MB_OK);
 	}
 	m_IsExportInProcess = false;
 }
@@ -199,10 +200,7 @@ void ExportHandler::updateSavedConfig()
 		m_configHandler.store();
 	}
 	catch (const config::StoreFailed& e) {
-		std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-		std::wstring error = L"Could store prefs: ";
-		error += converter.from_bytes(e.what());
-		MessageBox(nullptr, error.c_str(), TEXT("Error loading resource"), MB_OK);
+		debugDialog(TEXT("Prefs store failed"), L"Couldn't store prefs: ", e);
 	}
 }
 
