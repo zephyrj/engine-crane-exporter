@@ -181,8 +181,9 @@ void ExportHandler::EndExport()
 		updateSavedConfig();
 	}
 	else {
-		// TODO allow retrieval of last error and display it here
-		MessageBox(nullptr, L"", TEXT("Export failed"), MB_OK);
+		std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+		std::string error = m_exporter_p->get_last_error();
+		MessageBox(nullptr, converter.from_bytes(error).c_str(), TEXT("Export failed"), MB_OK);
 	}
 	m_IsExportInProcess = false;
 }

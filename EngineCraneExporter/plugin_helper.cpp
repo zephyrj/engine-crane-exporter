@@ -10,6 +10,7 @@
 namespace {
 	using ExporterHandle = void*;
 	template<typename Func> struct FuncLookupHelper {};
+    DEFINE_EXPORTER_FUNCTION(GetLastExporterError, "get_last_error", const char* (*)())
 	DEFINE_EXPORTER_FUNCTION(ExporterInit, "init", ExporterHandle(*)(uint32_t))
     DEFINE_EXPORTER_FUNCTION(ExporterDestroy, "destroy", void (*)(ExporterHandle))
     DEFINE_EXPORTER_FUNCTION(ExporterAddString, "add_string", void (*)(ExporterHandle, const char*, const char*, const char*))
@@ -30,6 +31,11 @@ Exporter::~Exporter()
         destroy();
         FreeLibrary(m_hDll);
     }
+}
+
+const char* Exporter::get_last_error()
+{
+    return call_exporter_func<GetLastExporterError>();
 }
 
 void Exporter::init(uint32_t script_version)

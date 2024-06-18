@@ -24,6 +24,8 @@ public:
     Exporter();
     virtual ~Exporter();
 
+    const char* get_last_error();
+
     void init(uint32_t script_version);
     bool finalise(const char* output_path);
     void destroy();
