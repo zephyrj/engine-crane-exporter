@@ -171,7 +171,15 @@ void ExportHandler::EndExport()
 {
 	m_IsExportInProcess = true;
 	std::string path = m_utf8Converter.to_bytes(m_ExportDirectory);
-
+	auto test_write_success = tryWriteToDirectory(m_ExportDirectory);
+	if (!test_write_success) {
+		std::wstring error(L"Cannot write to provided export directory ");
+		error += L"(" + m_ExportDirectory + L").\n";
+		error += L"Please try a different directory.";
+		MessageBox(nullptr, error.c_str(), TEXT("Export Failed: Can't use export directory"), MB_OK);
+		m_IsExportInProcess = false;
+		return;
+	}
 	bool dump_json = get_ui_value(ui::BoolElement::DumpJson);
 	if (dump_json) {
 		m_exporter_p->dump_json(path.c_str());
