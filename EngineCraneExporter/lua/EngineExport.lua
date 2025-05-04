@@ -124,6 +124,7 @@ function AddPartData(CarCalculator)
 	Data[tablePrefix .. "Pistons"] = EngineInfo.ModelInfo.Pistons.Name
     Data[tablePrefix .. "VVT"] = EngineInfo.ModelInfo.VVT.Name
 	Data[tablePrefix .. "VVL"] = EngineInfo.ModelInfo.VVL.Name
+	Data[tablePrefix .. "AspirationType"] = EngineInfo.ModelInfo.AspirationType.Name
 	Data[tablePrefix .. "Aspiration"] = EngineInfo.ModelInfo.AspirationSetup.Name
 	Data[tablePrefix .. "BoostControl"] = EngineInfo.ModelInfo.AspirationBoostControl.Name
     Data[tablePrefix .. "AspirationItem1"] = EngineInfo.ModelInfo.AspirationItemOption_1.Name
