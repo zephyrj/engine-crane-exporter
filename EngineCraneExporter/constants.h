@@ -5,4 +5,4 @@
 static constexpr const wchar_t* ExporterFriendlyName = L"engine-crane exporter";
 static constexpr const wchar_t* ExporterPathSafeName = L"engine-crane-exporter";
 static constexpr const wchar_t* EngineCraneAppDataExportPath = L"\\EngineCrane\\crate";
-
+static constexpr uint32_t ExporterVersion = 20251001;

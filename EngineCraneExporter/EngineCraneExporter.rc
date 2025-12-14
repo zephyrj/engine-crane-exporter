@@ -59,8 +59,8 @@ IDR_EXPORTER_LUA        BINARY                  "lua\\EngineExport.lua"
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,0,0,1
- PRODUCTVERSION 1,0,0,1
+ FILEVERSION 1,0,0,2
+ PRODUCTVERSION 1,0,0,2
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -77,18 +77,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "zephyrJ"
             VALUE "FileDescription", "Automation Exporter Plugin for EngineCrane"
-            VALUE "FileVersion", "0.1.1.1"
-#ifdef _WIN32
-            VALUE "OriginalFilename", "EngineCraneExporter_x86.dll"
+            VALUE "FileVersion", "1.0.0.2"
             VALUE "InternalName", "EngineCraneExporter_x86.dll"
-#else
-            VALUE "OriginalFilename", "EngineCraneExporter_x64.dll"
-            VALUE "InternalName", "EngineCraneExporter_x64.dll"
-#endif
             VALUE "LegalCopyright", "Copyright (C) zephyrj 2025"
-            
+            VALUE "OriginalFilename", "EngineCraneExporter_x86.dll"
             VALUE "ProductName", "EngineCraneExporter"
-            VALUE "ProductVersion", "0.1.1.1"
+            VALUE "ProductVersion", "1.0.0.2"
         END
     END
     BLOCK "VarFileInfo"

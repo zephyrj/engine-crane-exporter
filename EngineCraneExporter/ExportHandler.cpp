@@ -102,7 +102,7 @@ AuCarExpErrorCode ExportHandler::Init(const AuCarExpCarData* exportUiData)
 {
 	m_exporter_p = std::make_unique<Exporter>();
 	try {
-		m_exporter_p->init(0);
+		m_exporter_p->init(ExporterVersion);
 		std::cout << "Loaded " << EXPORTER_DLL_NAME << ": " << std::hex << m_exporter_p << std::endl;
 	} 
 	catch (const FailedToLoadLibrary& e) {

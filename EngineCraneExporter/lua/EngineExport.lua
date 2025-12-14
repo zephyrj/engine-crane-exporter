@@ -1,7 +1,7 @@
 -- Exporter code based off the ExportExample.lua file from 
 -- https://github.com/EndfinityDev/csvExporter
 
-SCRIPT_VERSION = 20240101
+SCRIPT_VERSION = 20251001
 
 function DoExport(CarCalculator, CarFile)
 	UAPI.Log("DoExport: ")
@@ -87,6 +87,22 @@ function AddCurveData(CarCalculator)
 	    local key_name = "Curve.TotalFriction." .. idx
 	    Data[key_name] = val
 	end
+
+	local EfficiencyPercentMap = CarCalculator.EngineCalculator.cpp:GetEfficiencyPercentMap()
+	local fullThrottleEffData = EfficiencyPercentMap[#EfficiencyPercentMap]
+	for idx, val in ipairs(fullThrottleEffData) do
+	    local key_name = "Curve.Efficiency." .. idx
+	    Data[key_name] = val
+	end
+	
+
+	local FuelUsedMap = CarCalculator.EngineCalculator.cpp:GetFuelUsedMap()
+	local fullThrottleFuelData = FuelUsedMap[#FuelUsedMap]
+	for idx, val in ipairs(fullThrottleFuelData) do
+	    local key_name = "Curve.FuelUsage." .. idx
+	    Data[key_name] = val
+	end
+
 	return Data
 end
 
@@ -206,6 +222,7 @@ function AddResultData(CarCalculator)
 	Data[tablePrefix .. "RequiredCooling"] = EngineResults.CoolingRequired
 	Data[tablePrefix .. "PerformanceIndex"] = EngineResults.PerformanceIndex
 	Data[tablePrefix .. "Responsiveness"] = EngineResults.Responsiveness
+	Data[tablePrefix .. "ExportResponsiveness"] = EngineResults.ExportResponsiveness
 	Data[tablePrefix .. "Smoothness"] = EngineResults.Smoothness
 	Data[tablePrefix .. "MTTF"] = EngineResults.MTTF
 	Data[tablePrefix .. "EconEff"] = EngineResults.EconEff
